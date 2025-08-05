@@ -187,8 +187,7 @@ const int MS_PER_CYCLE = 10000;		// 10000 milliseconds = 10 seconds
 int		ActiveButton;			// current button that is down
 GLuint	AxesList;				// list to hold the axes
 int		AxesOn;					// != 0 means to draw the axes
-GLuint	HorseList;			// object display list
-GLuint	RootList;
+GLuint	SphereList;			// object display list
 
 GLuint	OrbitList;
 int		DebugOn;				// != 0 means to print debugging info
@@ -293,7 +292,7 @@ MulArray3(float factor, float a, float b, float c )
 //#include "keytime.cpp"
 //#include "glslprogram.cpp"
 
-const int total_depth = 4;
+const int total_depth = 5;
 // main program:
 QuadTree* sphere;
 int
@@ -302,7 +301,7 @@ main( int argc, char *argv[ ] )
 	// turn on the glut package:
 	// (do this before checking argc and argv since glutInit might
 	// pull some command line arguments out)
-	sphere = new QuadTree(0.1f, 0.65f,total_depth );
+	sphere = new QuadTree(0.1f,0.85f,total_depth );
 	glutInit( &argc, argv );
 
 	// setup all the graphics stuff:
@@ -482,13 +481,7 @@ Display( )
 	// draw the box object by calling up its display list:
 
 	glCallList(OrbitList);
-	if (DisplayDepth == 0)
-	{
-		glCallList(RootList);
-	}
-	else {
-		glCallList(HorseList);
-	}
+	glCallList(SphereList);
 
 	
 
@@ -695,10 +688,13 @@ void generate_terrain() {
 
 
 int scale = 1;
-void generate_planet(Node* curr, int depth) {
+double land_height = 0.97f;
+double ice_height = 1.f;
+void generate_planet(Node* curr, int depth, bool debug_face = false) {
+
 	if (curr != nullptr) {
 		if (depth == 0) {
-
+			if (debug_face) {
 				if (curr->node_type == 'L') {
 					SetMaterial(1.f, 0.f, 0.f, 1.f);
 				}
@@ -711,10 +707,23 @@ void generate_planet(Node* curr, int depth) {
 				else if (curr->node_type == 'T') {
 					SetMaterial(1.f, 1.f, 1.f, 1.f);
 				}
+			}
+			else {
 
+				double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
+				if (height > ice_height) {
+					SetMaterial(0.8f, 0.8f, 0.8f, 1.f);
+				}
+				else if (height > land_height) {
+					SetMaterial(0.f, 1.f, 0.f, 1.f);
+				}
+				else {
+					printf("Node %c Height %f (%f, %f, %f)\n", curr->node_type ? curr->node_type : 0, height, curr->a->pos.x, curr->a->pos.y, curr->a->pos.z);
+
+					SetMaterial(0.f, 0.f, 1.f, 1.f);
+				}
+			}
 				glBegin(GL_TRIANGLES);
-
-
 				glVertex3f(curr->a->pos.x * scale, curr->a->pos.y * scale, curr->a->pos.z * scale);
 				glVertex3f(curr->b->pos.x * scale, curr->b->pos.y * scale, curr->b->pos.z * scale);
 				glVertex3f(curr->c->pos.x * scale, curr->c->pos.y * scale, curr->c->pos.z * scale);
@@ -726,13 +735,16 @@ void generate_planet(Node* curr, int depth) {
 				printf("(%f %f %f)\n", curr->c->pos.x, curr->c->pos.y, curr->c->pos.z);
 				*/
 				glEnd();
+
+				
+	
 			
 		}
 		else {
-			generate_planet(curr->right, depth - 1);
-			generate_planet(curr->left, depth - 1);
-			generate_planet(curr->top, depth - 1);
-			generate_planet(curr->center, depth - 1);
+			generate_planet(curr->right, depth - 1, debug_face);
+			generate_planet(curr->left, depth - 1, debug_face);
+			generate_planet(curr->top, depth - 1, debug_face);
+			generate_planet(curr->center, depth - 1, debug_face);
 		}
 
 		
@@ -771,20 +783,12 @@ InitLists( )
 	// create the object:
 	//glTranslatef(2.f, 0.f, 0.f);
 
-	HorseList = glGenLists(1);
-	glNewList(HorseList, GL_COMPILE);
-	glPushMatrix();
-	//glRotatef(90.f, 0., 1., 0.);
-	//glTranslatef(0., -1.1f, 0.f);
-	//generate_terrain();
-	generate_planet(sphere->root, total_depth);
-	glPopMatrix();
-	glEndList();
 
-	RootList = glGenLists(1);
-	glNewList(RootList, GL_COMPILE);
+
+	SphereList = glGenLists(1);
+	glNewList(SphereList, GL_COMPILE);
 	glPushMatrix();
-	generate_planet(sphere->root, 1);
+	generate_planet(sphere->root, total_depth);
 	glPopMatrix();
 	glEndList();
 

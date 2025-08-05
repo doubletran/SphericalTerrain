@@ -33,6 +33,7 @@ const char adj_rule_lookup[3][2][2] =
 	{ {'L', 'C'}, {'T', 'R'} }	//Right Edge
 
 };
+
 class Node {
 public:
 	Vertex *a, *b, *c;
@@ -42,6 +43,7 @@ public:
 	char node_type;
 	double height_range;
 	string quad_path = "";
+
 	Node(Node* parent_, char type_, Vertex *a_, Vertex *b_, Vertex *c_) {
 		parent = parent_;
 		node_type = type_;
@@ -63,14 +65,13 @@ public:
 	}
 	char swap(const char type, const char lookup[2][2]) {
 		for (int i = 0; i < 2; i++) {
-			if (type== lookup[i][0]) {
+			if (type == lookup[i][0]) {
 				return lookup[i][1];
 			}
 			else if (type == lookup[i][1]) {
 				return lookup[i][0];
 			}
 		}
-
 
 	}
 	string getNeighborPath(char neighbor_type) {
@@ -80,11 +81,11 @@ public:
 		int last_center_index = quad_path.find_last_of('C');
 		common_ancestor_index = last_center_index > common_ancestor_index ? last_center_index : common_ancestor_index;
 		if (common_ancestor_index < 0) {
-			return "";
+			common_ancestor_index = 0;
 		}
 		for (int i = common_ancestor_index; i < neighbor_path.length(); i++) {
 			char curr_opposite_type;
-			if (neighbor_type == 'B') {
+			if (neighbor_type == 'C') {
 				curr_opposite_type = swap(quad_path[i], adj_rule_lookup[0]);
 			}
 			else if (neighbor_type == 'L') {

@@ -1,12 +1,12 @@
 #include "tetra.h"
 
 const double a[] = { 0.f, 0.f, 1.f };
-const double b[] = { 0.f, 0.94f, -0.333f };
-const double c[] = { 0.816f, -0.47f, -0.333f };
-const double d[] = { -0.816f, -0.47f, -0.333f };
+const double b[] = { 0.f, 0.94281f, -0.333333f };
+const double c[] = { 0.816497f, -0.471405f, -0.333333f };
+const double d[] = { -0.816497f, -0.471405f, -0.333333f };
 const char left = 'L';
 const char top = 'T';
-const char center = 'C';
+const char center = 'C'; 
 const char right = 'R';
 
 QuadTree::QuadTree(const double variance, const double roughness_, const int depth) {
@@ -31,18 +31,26 @@ QuadTree::QuadTree(const double variance, const double roughness_, const int dep
 
 void QuadTree::subdivideTree(const int depth) {
 	int i = 0;
+	double maxheight = 0;
+	double minheight = 10;
 	while (i < depth) {
 		queue<Node*> q;
 		q.push(root);
 		Node* t = nullptr;
 		while (!q.empty()) {
 			t = q.front();
+			
 			q.pop();
+			if (i == depth - 1) {
+				maxheight = length(t->a->pos) > maxheight ? length(t->a->pos) : maxheight;
+				minheight = length(t->a->pos) < minheight ? length(t->a->pos) : minheight;
+			}
 			if (t->left != nullptr) {
-				q.push(t->left);
+				q.push(t->right);
 				q.push(t->center);
 				q.push(t->top);
-				q.push(t->right);
+				q.push(t->left);
+
 			}
 			else {
 				subdivideNode(t);
@@ -50,10 +58,11 @@ void QuadTree::subdivideTree(const int depth) {
 		}
 		i++;
 	}
+	printf("Height %f %f", maxheight, minheight);
 }
 
 void QuadTree::subdivideNode(Node* curr) {
-	string bottom_path = curr->getNeighborPath('B');
+	string bottom_path = curr->getNeighborPath('C');
 	string left_path = curr->getNeighborPath('L');
 	string right_path = curr->getNeighborPath('R');
 	Node* right = getNode(right_path);
