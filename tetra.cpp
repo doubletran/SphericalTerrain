@@ -46,9 +46,11 @@ void QuadTree::subdivideTree(const int depth) {
 				minheight = length(t->a->pos) < minheight ? length(t->a->pos) : minheight;
 			}
 			if (t->left != nullptr) {
-				q.push(t->right);
 				q.push(t->center);
 				q.push(t->top);
+				q.push(t->right);
+
+
 				q.push(t->left);
 
 			}

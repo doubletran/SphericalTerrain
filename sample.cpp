@@ -292,7 +292,7 @@ MulArray3(float factor, float a, float b, float c )
 //#include "keytime.cpp"
 //#include "glslprogram.cpp"
 
-const int total_depth = 5;
+const int total_depth = 6;
 // main program:
 QuadTree* sphere;
 int
@@ -690,10 +690,15 @@ void generate_terrain() {
 int scale = 1;
 double land_height = 0.97f;
 double ice_height = 1.f;
+const int TROPICAL = 15;
+const int tropical_lat = 25;
+
 void generate_planet(Node* curr, int depth, bool debug_face = false) {
 
 	if (curr != nullptr) {
 		if (depth == 0) {
+			//tropical temperature
+
 			if (debug_face) {
 				if (curr->node_type == 'L') {
 					SetMaterial(1.f, 0.f, 0.f, 1.f);
@@ -709,19 +714,37 @@ void generate_planet(Node* curr, int depth, bool debug_face = false) {
 				}
 			}
 			else {
-
-				double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
-				if (height > ice_height) {
-					SetMaterial(0.8f, 0.8f, 0.8f, 1.f);
+				double temp;
+				if (abs(curr->a->pos.x) * 90 < 30) {
+					temp = 20;
 				}
-				else if (height > land_height) {
-					SetMaterial(0.f, 1.f, 0.f, 1.f);
+				else if (abs(curr->a->pos.x) * 90 < 60) {
+					temp = 10;
 				}
 				else {
-					printf("Node %c Height %f (%f, %f, %f)\n", curr->node_type ? curr->node_type : 0, height, curr->a->pos.x, curr->a->pos.y, curr->a->pos.z);
+					temp = 0;
+				}
 
+				double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
+				if (height > land_height) {
+					temp = temp - ((height - land_height) * 650) + 25.f;
+					if (temp <0) {
+						SetMaterial(1.0f, 1.0f, 1.0f, 1.f);
+					}
+					else if (temp < 10) {
+						SetMaterial(0.5f, 0.5f, 0.5f, 1.f);
+					}
+					else if (temp < 20) {
+						SetMaterial(1.f, 1.f, 0.f, 1.f);
+					}
+					else {
+						SetMaterial(0.f, 1.f, 0.f, 1.f);
+					}
+				}
+				else {
 					SetMaterial(0.f, 0.f, 1.f, 1.f);
 				}
+
 			}
 				glBegin(GL_TRIANGLES);
 				glVertex3f(curr->a->pos.x * scale, curr->a->pos.y * scale, curr->a->pos.z * scale);
