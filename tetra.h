@@ -1,8 +1,6 @@
 #pragma once
-#include <queue>
-#include <string>
-#include <algorithm>
-#include "icVector.H"
+
+#include "helper.h"
 using namespace std;
 static double roughness;
 struct Vertex {
@@ -104,13 +102,16 @@ public:
 
 };
 class QuadTree {
+	vector<Node*>TriangleList;
 public:
 	Node* root;
-
+	
 	QuadTree(const double variance, const double roughness, const int);
 	void subdivideTree(const int depth);
 	void subdivideNode(Node*);
 	Node* getNode(string path);
+	void display();
 
 };
+
 

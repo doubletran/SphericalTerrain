@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <time.h>
+
 #define _USE_MATH_DEFINES
 #include <math.h>
 #include "CarouselHorse0.10.550"
@@ -18,10 +19,7 @@
 #pragma warning(disable:4996)
 #endif
 
-#include "glew.h"
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include "glut.h"
+
 #include "tetra.h"
 
 //	This is a sample OpenGL / GLUT program
@@ -168,7 +166,6 @@ const GLfloat FOGEND      = 4.f;
 
 // for lighting:
 
-const float	WHITE[ ] = { 1.,1.,1.,1. };
 
 // for animation:
 
@@ -241,49 +238,10 @@ float			Unit(float [3]);
 
 // utility to create an array from 3 separate values:
 
-float *
-Array3( float a, float b, float c )
-{
-	static float array[4];
 
-	array[0] = a;
-	array[1] = b;
-	array[2] = c;
-	array[3] = 1.;
-	return array;
-}
-
-// utility to create an array from a multiplier and an array:
-
-float *
-MulArray3( float factor, float array0[ ] )
-{
-	static float array[4];
-
-	array[0] = factor * array0[0];
-	array[1] = factor * array0[1];
-	array[2] = factor * array0[2];
-	array[3] = 1.;
-	return array;
-}
-
-
-float *
-MulArray3(float factor, float a, float b, float c )
-{
-	static float array[4];
-
-	float* abc = Array3(a, b, c);
-	array[0] = factor * abc[0];
-	array[1] = factor * abc[1];
-	array[2] = factor * abc[2];
-	array[3] = 1.;
-	return array;
-}
 
 // these are here for when you need them -- just uncomment the ones you need:
-#include "setmaterial.cpp"
-#include "setlight.cpp"
+
 //#include "osusphere.cpp"
 //#include "osucone.cpp"
 //#include "osutorus.cpp"
@@ -292,7 +250,7 @@ MulArray3(float factor, float a, float b, float c )
 //#include "keytime.cpp"
 //#include "glslprogram.cpp"
 
-const int total_depth = 6;
+const int total_depth = 4;
 // main program:
 QuadTree* sphere;
 int
@@ -687,97 +645,7 @@ void generate_terrain() {
 }
 
 
-int scale = 1;
-double land_height = 0.97f;
-double ice_height = 1.f;
-const int TROPICAL = 15;
-const int tropical_lat = 25;
 
-void generate_planet(Node* curr, int depth, bool debug_face = false) {
-
-	if (curr != nullptr) {
-		if (depth == 0) {
-			//tropical temperature
-
-			if (debug_face) {
-				if (curr->node_type == 'L') {
-					SetMaterial(1.f, 0.f, 0.f, 1.f);
-				}
-				else if (curr->node_type == 'R') {
-					SetMaterial(0.f, 1.f, 0.f, 1.f);
-				}
-				else if (curr->node_type == 'C') {
-					SetMaterial(0.f, 0.f, 1.f, 1.f);
-				}
-				else if (curr->node_type == 'T') {
-					SetMaterial(1.f, 1.f, 1.f, 1.f);
-				}
-			}
-			else {
-				double temp;
-				if (abs(curr->a->pos.x) * 90 < 30) {
-					temp = 20;
-				}
-				else if (abs(curr->a->pos.x) * 90 < 60) {
-					temp = 10;
-				}
-				else {
-					temp = 0;
-				}
-
-				double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
-				if (height > land_height) {
-					temp = temp - ((height - land_height) * 650) + 25.f;
-					if (temp <0) {
-						SetMaterial(1.0f, 1.0f, 1.0f, 1.f);
-					}
-					else if (temp < 10) {
-						SetMaterial(0.5f, 0.5f, 0.5f, 1.f);
-					}
-					else if (temp < 20) {
-						SetMaterial(1.f, 1.f, 0.f, 1.f);
-					}
-					else {
-						SetMaterial(0.f, 1.f, 0.f, 1.f);
-					}
-				}
-				else {
-					SetMaterial(0.f, 0.f, 1.f, 1.f);
-				}
-
-			}
-				glBegin(GL_TRIANGLES);
-				glVertex3f(curr->a->pos.x * scale, curr->a->pos.y * scale, curr->a->pos.z * scale);
-				glVertex3f(curr->b->pos.x * scale, curr->b->pos.y * scale, curr->b->pos.z * scale);
-				glVertex3f(curr->c->pos.x * scale, curr->c->pos.y * scale, curr->c->pos.z * scale);
-				/*
-				printf("Depth %d", depth);
-				printf("%c", curr->node_type ? curr->node_type : 0);
-				printf("(%f %f %f)", curr->a->pos.x, curr->a->pos.y, curr->a->pos.z);
-				printf("(%f %f %f)", curr->b->pos.x, curr->b->pos.y, curr->b->pos.z);
-				printf("(%f %f %f)\n", curr->c->pos.x, curr->c->pos.y, curr->c->pos.z);
-				*/
-				glEnd();
-
-				
-	
-			
-		}
-		else {
-			generate_planet(curr->right, depth - 1, debug_face);
-			generate_planet(curr->left, depth - 1, debug_face);
-			generate_planet(curr->top, depth - 1, debug_face);
-			generate_planet(curr->center, depth - 1, debug_face);
-		}
-
-		
-	}
-
-
-
-
-
-}
 // initialize the display lists that will not change:
 // (a display list is a way to store opengl commands in
 //  memory so that they can be played back efficiently at a later time
@@ -811,7 +679,7 @@ InitLists( )
 	SphereList = glGenLists(1);
 	glNewList(SphereList, GL_COMPILE);
 	glPushMatrix();
-	generate_planet(sphere->root, total_depth);
+	sphere->display();
 	glPopMatrix();
 	glEndList();
 

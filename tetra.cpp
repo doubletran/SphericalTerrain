@@ -8,6 +8,17 @@ const char left = 'L';
 const char top = 'T';
 const char center = 'C'; 
 const char right = 'R';
+int scale = 1;
+double land_height = 0.97f;
+double ice_height = 1.f;
+const int TROPICAL = 15;
+const int tropical_lat = 25;
+enum Debug {
+	TEMP,
+	WATER_DISTANCE,
+	FACE
+};
+int NowDebug = TEMP;
 
 QuadTree::QuadTree(const double variance, const double roughness_, const int depth) {
 	Vertex *vA = new Vertex(a);
@@ -44,15 +55,13 @@ void QuadTree::subdivideTree(const int depth) {
 			if (i == depth - 1) {
 				maxheight = length(t->a->pos) > maxheight ? length(t->a->pos) : maxheight;
 				minheight = length(t->a->pos) < minheight ? length(t->a->pos) : minheight;
+				TriangleList.push_back(t);
 			}
 			if (t->left != nullptr) {
 				q.push(t->center);
 				q.push(t->top);
 				q.push(t->right);
-
-
 				q.push(t->left);
-
 			}
 			else {
 				subdivideNode(t);
@@ -135,4 +144,62 @@ Node* QuadTree::getNode(string path) {
 	return node;
 
 }
+void QuadTree::display() {
+	int i = 0;
+	for (auto& curr : TriangleList) {
+		if (NowDebug == FACE) {
+			if (curr->node_type == 'L') {
+				SetMaterial(1.f, 0.f, 0.f, 1.f);
+			}
+			else if (curr->node_type == 'R') {
+				SetMaterial(0.f, 1.f, 0.f, 1.f);
+			}
+			else if (curr->node_type == 'C') {
+				SetMaterial(0.f, 0.f, 1.f, 1.f);
+			}
+			else if (curr->node_type == 'T') {
+				SetMaterial(1.f, 1.f, 1.f, 1.f);
+			}
+		}
+		else if (NowDebug == TEMP) {
+			double temp;
+			if (abs(curr->a->pos.x) * 90 < 30) {
+				temp = 20;
+			}
+			else if (abs(curr->a->pos.x) * 90 < 60) {
+				temp = 10;
+			}
+			else {
+				temp = 0;
+			}
+
+			double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
+			if (height > land_height) {
+				temp = temp - ((height - land_height) * 650) + 25.f;
+				if (temp < 0) {
+					SetMaterial(1.0f, 1.0f, 1.0f, 1.f);
+				}
+				else if (temp < 10) {
+					SetMaterial(0.5f, 0.5f, 0.5f, 1.f);
+				}
+				else if (temp < 20) {
+					SetMaterial(1.f, 1.f, 0.f, 1.f);
+				}
+				else {
+					SetMaterial(0.f, 1.f, 0.f, 1.f);
+				}
+			}
+			else {
+				SetMaterial(0.f, 0.f, 1.f, 1.f);
+			}
+		}
+		glBegin(GL_TRIANGLES);
+		glVertex3f(curr->a->pos.x * scale, curr->a->pos.y * scale, curr->a->pos.z * scale);
+		glVertex3f(curr->b->pos.x * scale, curr->b->pos.y * scale, curr->b->pos.z * scale);
+		glVertex3f(curr->c->pos.x * scale, curr->c->pos.y * scale, curr->c->pos.z * scale);
+		glEnd();
+	}
+}
+
+
 
