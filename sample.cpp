@@ -5,7 +5,6 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
-#include "CarouselHorse0.10.550"
 
 #ifndef F_PI
 #define F_PI		((float)(M_PI))
@@ -239,18 +238,7 @@ float			Unit(float [3]);
 // utility to create an array from 3 separate values:
 
 
-
-// these are here for when you need them -- just uncomment the ones you need:
-
-//#include "osusphere.cpp"
-//#include "osucone.cpp"
-//#include "osutorus.cpp"
-//#include "bmptotexture.cpp"
-//#include "loadobjfile.cpp"
-//#include "keytime.cpp"
-//#include "glslprogram.cpp"
-
-const int total_depth = 8;
+const int total_depth = 6;
 // main program:
 QuadTree* sphere;
 int
@@ -259,7 +247,8 @@ main( int argc, char *argv[ ] )
 	// turn on the glut package:
 	// (do this before checking argc and argv since glutInit might
 	// pull some command line arguments out)
-	sphere = new QuadTree(0.1f,0.85f,total_depth );
+	//Mountain Maune Kea rise around 10 km total variance = 0.1 => 1km = 0.01 unit
+	sphere = new QuadTree(0.1f,0.75f,total_depth );
 	glutInit( &argc, argv );
 
 	// setup all the graphics stuff:
@@ -392,14 +381,12 @@ Display( )
 		gluLookAt(5, 5, 5, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
 	}
 	else
-		gluLookAt(0.f, 0.f, 0.f, 0.f, 0.f, 3.f, 0.f, 1.f, 0.f);
+		gluLookAt(0.f, 0.f, 5.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f);
 
 
+	glRotatef(Xrot, 1.f, 0.f, 0.f);
+	glRotatef(Yrot, 0.f, 1.f, 0.f);
 
-	// rotate the scene:
-
-	glRotatef( (GLfloat)Yrot, 0.f, 1.f, 0.f );
-	glRotatef( (GLfloat)Xrot, 1.f, 0.f, 0.f );
 
 	// uniformly scale the scene:
 
@@ -439,7 +426,11 @@ Display( )
 	// draw the box object by calling up its display list:
 
 	glCallList(OrbitList);
+	glPushMatrix();
+	glRotatef((GLfloat)90.f, 0.f, 0.f, 1.f);
+	//glRotatef(360.f*Time, 1.f, 0.f, 0.f);
 	glCallList(SphereList);
+	glPopMatrix();
 
 	
 

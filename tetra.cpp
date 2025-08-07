@@ -9,7 +9,7 @@ const char top = 'T';
 const char center = 'C'; 
 const char right = 'R';
 int scale = 1;
-double land_height = 0.97f;
+double land_height = 0.985f;
 
 enum Biome {
 	TUNDRA,
@@ -40,7 +40,6 @@ int BIOME_MATRIX[3][3] = {
 };
 enum Debug {
 	TEMP,
-	WATER_DISTANCE,
 	FACE,
 	ELEVATION
 };
@@ -222,9 +221,9 @@ void QuadTree::display() {
 				int prec_index = ((maxheight - height) * 3 / (maxheight - land_height));
 				temp_index = max({ temp_index, 0 });
 				temp_index = min({ temp_index, 2 });
+				//prec_index = prec_index + (2 * rand() / RAND_MAX - 1);
 				prec_index = max({ prec_index, 0 });
 				prec_index = min({ prec_index, 2 });
-
 				int biome = BIOME_MATRIX[prec_index][temp_index];
 				SetMaterial(BiomeColor[biome][0], BiomeColor[biome][1], BiomeColor[biome][2], 1.f);
 			}
