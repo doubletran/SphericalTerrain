@@ -10,13 +10,39 @@ const char center = 'C';
 const char right = 'R';
 int scale = 1;
 double land_height = 0.97f;
-double ice_height = 1.f;
-const int TROPICAL = 15;
-const int tropical_lat = 25;
+
+enum Biome {
+	TUNDRA,
+	ICE,
+	HOT_DESERT, //Grassland
+	COLD_DESERT,  //subtropical dessert
+	HOT_FOREST, //tripical forest
+	COLD_FOREST,
+	HOT_RAIN_FOREST,
+	COLD_RAIN_FOREST
+};
+GLfloat BiomeColor[8][3]{
+	{0.8f, 0.8f, 0.8f},
+	{1.f, 1.f, 1.f},
+	{0.89f, 0.83f, 0.64f},
+	{0.79, 0.73, 0.45 },
+	{0.624, 0.651, 0.102 },
+	{0.42, 0.67, 0.46 },
+	{0.0f, 0.36, 0.19},
+	{0.24, 0.42, 0.31 }
+
+};
+//x-axis: TEMPERATURE
+int BIOME_MATRIX[3][3] = {
+	{TUNDRA, COLD_DESERT, HOT_DESERT},
+	{ICE, COLD_FOREST, HOT_FOREST},
+	{ICE, COLD_RAIN_FOREST, HOT_RAIN_FOREST}
+};
 enum Debug {
 	TEMP,
 	WATER_DISTANCE,
-	FACE
+	FACE,
+	ELEVATION
 };
 int NowDebug = TEMP;
 
@@ -42,8 +68,7 @@ QuadTree::QuadTree(const double variance, const double roughness_, const int dep
 
 void QuadTree::subdivideTree(const int depth) {
 	int i = 0;
-	double maxheight = 0;
-	double minheight = 10;
+
 	while (i < depth) {
 		queue<Node*> q;
 		q.push(root);
@@ -146,7 +171,10 @@ Node* QuadTree::getNode(string path) {
 }
 void QuadTree::display() {
 	int i = 0;
+	int min_temp = -10;
+	int max_temp = 30;
 	for (auto& curr : TriangleList) {
+		double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
 		if (NowDebug == FACE) {
 			if (curr->node_type == 'L') {
 				SetMaterial(1.f, 0.f, 0.f, 1.f);
@@ -164,18 +192,19 @@ void QuadTree::display() {
 		else if (NowDebug == TEMP) {
 			double temp;
 			if (abs(curr->a->pos.x) * 90 < 30) {
-				temp = 20;
+				temp = max_temp;
 			}
 			else if (abs(curr->a->pos.x) * 90 < 60) {
-				temp = 10;
+				temp = 15;
 			}
 			else {
 				temp = 0;
 			}
+	
 
-			double height = length((curr->a->pos + curr->b->pos + curr->c->pos) * (1.f / 3.f));
 			if (height > land_height) {
 				temp = temp - ((height - land_height) * 650) + 25.f;
+				/*
 				if (temp < 0) {
 					SetMaterial(1.0f, 1.0f, 1.0f, 1.f);
 				}
@@ -188,10 +217,24 @@ void QuadTree::display() {
 				else {
 					SetMaterial(0.f, 1.f, 0.f, 1.f);
 				}
+				*/
+				int temp_index = ((temp - min_temp) * 3 / (max_temp - min_temp));
+				int prec_index = ((maxheight - height) * 3 / (maxheight - land_height));
+				temp_index = max({ temp_index, 0 });
+				temp_index = min({ temp_index, 2 });
+				prec_index = max({ prec_index, 0 });
+				prec_index = min({ prec_index, 2 });
+
+				int biome = BIOME_MATRIX[prec_index][temp_index];
+				SetMaterial(BiomeColor[biome][0], BiomeColor[biome][1], BiomeColor[biome][2], 1.f);
 			}
 			else {
 				SetMaterial(0.f, 0.f, 1.f, 1.f);
 			}
+		}
+		else if (NowDebug == ELEVATION) {
+			double color = (height - minheight) / (maxheight - minheight);
+			SetMaterial(color, color, color, 1.f);
 		}
 		glBegin(GL_TRIANGLES);
 		glVertex3f(curr->a->pos.x * scale, curr->a->pos.y * scale, curr->a->pos.z * scale);

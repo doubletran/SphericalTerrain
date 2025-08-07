@@ -250,7 +250,7 @@ float			Unit(float [3]);
 //#include "keytime.cpp"
 //#include "glslprogram.cpp"
 
-const int total_depth = 4;
+const int total_depth = 8;
 // main program:
 QuadTree* sphere;
 int

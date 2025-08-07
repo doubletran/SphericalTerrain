@@ -98,11 +98,14 @@ public:
 		return neighbor_path;
 
 	}
-
-
 };
+
+
 class QuadTree {
 	vector<Node*>TriangleList;
+	double maxheight = 0;
+
+	double minheight = 10;
 public:
 	Node* root;
 	
@@ -111,7 +114,6 @@ public:
 	void subdivideNode(Node*);
 	Node* getNode(string path);
 	void display();
-
 };
 
 
