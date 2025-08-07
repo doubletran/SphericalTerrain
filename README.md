@@ -5,6 +5,7 @@
 
 This project implements a tetrahedron subdivision algorithm to approximate a sphere, based on the method proposed in the paper [Generation and Rendering of Fractal Terrains on Approximated
  Spherical Surfaces](https://worldcomp-proceedings.com/proc/p2013/CGV4061.pdf), by J. M. Willemse and K. A. Hawick.
+ 
  <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/bbfc9958-cf1a-4be7-9bc8-14a33c36646d" />
  <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/64bdd71c-11e7-42f9-9f38-a16829b93286" />
  <img width="300" height="300" alt="image" src="https://github.com/user-attachments/assets/950ab67f-56e1-45b5-afd8-b10647b430a4" />
