@@ -1,4 +1,6 @@
 ## Spherical Terrain Generator in OpenGL
+<img width="509" height="498" alt="image" src="https://github.com/user-attachments/assets/b0bad817-4442-47f1-afb9-77fe6a08a928" />
+
 
 A special thing about landscapes that they are self-similar at different scales. Fractals are similar in this nature. Thus,  they are often used in landscapes to make it realistic. 
 In this project, I explored the generation of terrain on spherical surfaces based on geometrical modelling. The algorithm was proposed in the paper ![Generation and Rendering of Fractal Terrains on Approximated
